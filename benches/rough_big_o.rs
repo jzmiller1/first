@@ -5,7 +5,7 @@ extern crate first;
 use first::utils;
 
 
-fn bench_frequency_O(c: &mut Criterion) {
+fn bench_frequency_o(c: &mut Criterion) {
     let mut group = c.benchmark_group("frequency");
     for size in [100, 1_000, 10_000].iter() {
         let s: String = std::iter::repeat("ABCD").take(*size / 4).collect();
@@ -16,7 +16,7 @@ fn bench_frequency_O(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_freq_to_prob_O(c: &mut Criterion) {
+fn bench_freq_to_prob_o(c: &mut Criterion) {
     let mut group = c.benchmark_group("freq_to_prob");
     for size in [100, 1_000, 10_000].iter() {
         let mut freq_map = HashMap::new();
@@ -30,7 +30,7 @@ fn bench_freq_to_prob_O(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_entropy_O(c: &mut Criterion) {
+fn bench_entropy_o(c: &mut Criterion) {
     let mut group = c.benchmark_group("entropy");
     for size in [100, 1_000, 10_000].iter() {
         let mut freq_map = HashMap::new();
@@ -45,5 +45,5 @@ fn bench_entropy_O(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_frequency_O, bench_freq_to_prob_O, bench_entropy_O);
+criterion_group!(benches, bench_frequency_o, bench_freq_to_prob_o, bench_entropy_o);
 criterion_main!(benches);
