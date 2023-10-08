@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
-mod utils;
-mod errors;
-mod nodes;
+use first::utils;
 
 fn main() {
     let freqs = utils::frequency("ABBA");
