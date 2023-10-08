@@ -129,7 +129,6 @@ pub fn expected(f: &HashMap<char, f32>, c: &HashMap<char, &str>) -> Result<f32, 
             return Err(SymbolMappingError::ExtraSymbolInCodes(symbol));
         }
     }
-
     Ok(total)
 }
 
@@ -172,6 +171,15 @@ fn generate_codes(node: Node, current_code: String, huffman_codes: &mut HashMap<
     }
 }
 
+
+pub fn encoder<S: AsRef<str>>(s: S, codes: &HashMap<char, String>) -> Result<String, SymbolMappingError> {
+    let mut encoded = String::new();
+    for symbol in s.as_ref().chars() {
+        let value = codes.get(&symbol).ok_or(SymbolMappingError::SymbolNotFoundInCodes(symbol))?;
+        encoded.push_str(value);
+    }
+    Ok(encoded)
+}
 
 #[cfg(test)]
 mod tests {

@@ -24,7 +24,7 @@ fn main() {
     let expected = utils::expected(&probs, &c);
     println!("Expected Length: {:?}", expected);
 
-    let freqs = utils::frequency("12ABjBA1WROJEX(U@#X(@(#((@((@DKODJWOJEWOJWOeeeeeeeeeeeeeeee");
+    let freqs = utils::frequency("12ABjBA1WROJEX(U@#X(@(#((@((@DKODJWOJEWOJWOeeeeeeeeeeeeeeee ach");
     println!("{:?}", freqs);
 
     let probs = utils::freq_to_prob(&freqs);
@@ -36,4 +36,9 @@ fn main() {
     let code = utils::huffman(probs);
     println!("{:#?}", code);
 
+    let encoded = utils::encoder("12 each", &code);
+    match encoded {
+        Ok(value) => println!("{:#?}", value),
+        Err(e) => println!("An error occurred: {:?}", e),
+    }
 }
