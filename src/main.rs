@@ -24,7 +24,7 @@ fn main() {
     let expected = utils::expected(&probs, &c);
     println!("Expected Length: {:?}", expected);
 
-    let freqs = utils::frequency("12ABjBA1WROJEX(U@#X(@(#((@((@DKODJWOJEWOJWOeeeeeeeeeeeeeeee ach");
+    let freqs = utils::frequency("1234567890ABjBA1WROJEX(U@#X(@(#((@((@DKODJWOJEWOJWOeeeeeeeeeeeeeeee aaaaaaaccchhh '{;#@ghjLKJ");
     println!("{:?}", freqs);
 
     let probs = utils::freq_to_prob(&freqs);
@@ -33,12 +33,36 @@ fn main() {
     let entropy = utils::entropy(&probs);
     println!("Entropy is: {:?}", entropy);
 
-    let code = utils::huffman(probs);
+    let code = utils::huffman(&probs);
     println!("{:#?}", code);
+
+    let expected = utils::expected(&probs, &code);
+    println!("Expected Length: {:?}", expected);
 
     let encoded = utils::encoder("12 each", &code);
     match encoded {
-        Ok(value) => println!("{:#?}", value),
-        Err(e) => println!("An error occurred: {:?}", e),
+        Ok(encoded_str) => {
+            println!("Encoded: {:#?}", encoded_str);
+            let decoded = utils::decoder(&encoded_str, &code);
+            match decoded {
+                Ok(value) => println!("Decoded: {:#?}", value),
+                Err(e) => println!("An error occurred while decoding: {:?}", e),
+            }
+        },
+        Err(e) => println!("An error occurred while encoding: {:?}", e),
     }
+
+    let encoded = utils::encoder("12 Each", &code);
+    match encoded {
+        Ok(encoded_str) => {
+            println!("Encoded: {:#?}", encoded_str);
+            let decoded = utils::decoder(&encoded_str, &code);
+            match decoded {
+                Ok(value) => println!("Decoded: {:#?}", value),
+                Err(e) => println!("An error occurred while decoding: {:?}", e),
+            }
+        },
+        Err(e) => println!("An error occurred while encoding: {:?}", e),
+    }
+
 }

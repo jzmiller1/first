@@ -98,29 +98,34 @@ pub fn entropy(f: &HashMap<char, f32>) -> f32 {
     total
 }
 
-/// Calculates the expected length of a message for a given variable length encoding
+/// Calculates the expected length of a message for a given variable-length encoding
 ///
 /// The expected length is computed as the sum of the products of the probabilities and lengths of
 /// each symbol's encoding.
 ///
+/// # Type Parameters
+///
+/// * `S` - A type that implements `AsRef<str>`, allowing it to be converted to a string slice (`&str`).
+///          This means `S` could be a `String`, `&str`, `Box<str>`, or any other type that implements
+///          `AsRef<str>`.
+///
 /// # Arguments
 ///
-/// * `f` - A reference to a `HashMap` containing character frequencies as `f32`.
-/// * `c` - A reference to a `HashMap` containing values and encoded values as String.
+/// * `f` - A reference to a `HashMap` containing characters as keys and their frequencies as `f32` values.
+/// * `c` - A reference to a `HashMap` containing characters as keys and their encoded values of type `S`.
 ///
 /// # Returns
 ///
-/// Returns a floating-point number representing the expected value.
-///
+/// Returns a `Result` containing a floating-point number representing the expected value, or an error
+/// if there are symbols that cannot be mapped.
 ///
 /// Note that the function signature assumes that you've imported `HashMap` from the standard library.
-pub fn expected(f: &HashMap<char, f32>, c: &HashMap<char, &str>) -> Result<f32, SymbolMappingError> {
+pub fn expected<S: AsRef<str>>(f: &HashMap<char, f32>, c: &HashMap<char, S>) -> Result<f32, SymbolMappingError> {
     let mut total: f32 = 0.0;
 
-    // Check for symbols present in f but not in c
     for (&symbol, &freq) in f.iter() {
         let code = c.get(&symbol).ok_or(SymbolMappingError::SymbolNotFoundInCodes(symbol))?;
-        total += freq * (code.len() as f32);
+        total += freq * (code.as_ref().len() as f32);
     }
 
     // Check for symbols present in c but not in f
@@ -132,12 +137,12 @@ pub fn expected(f: &HashMap<char, f32>, c: &HashMap<char, &str>) -> Result<f32, 
     Ok(total)
 }
 
-pub fn huffman(probs: HashMap<char, f32>) -> HashMap<char, String> {
+pub fn huffman(probs: &HashMap<char, f32>) -> HashMap<char, String> {
     let mut heap: BinaryHeap<Node> = probs
         .into_iter()
         .map(|(symbol, probability)| Node {
-            probability,
-            kind: NodeKind::Leaf { symbol },
+            probability: *probability,
+            kind: NodeKind::Leaf { symbol: *symbol },
         })
         .collect();
 
@@ -179,6 +184,41 @@ pub fn encoder<S: AsRef<str>>(s: S, codes: &HashMap<char, String>) -> Result<Str
         encoded.push_str(value);
     }
     Ok(encoded)
+}
+
+pub fn decoder<S: AsRef<str>>(s: S, codes: &HashMap<char, String>) -> Result<String, SymbolMappingError> {
+
+    let mut reversed_codes = HashMap::new();
+    for (key, val) in codes.iter() {
+        reversed_codes.insert(val.clone(), key.clone());
+    }
+
+    let s = s.as_ref();
+    let mut cursor = 0;
+    let mut index = 0;
+    let mut message = String::new();
+
+    while index < s.len() {
+        let next_cursor = index + cursor + 1;
+
+        if next_cursor > s.len() {
+            return Err(SymbolMappingError::UnknownSymbolInString);
+        }
+
+        let symbol = &s[index..next_cursor];
+
+        match reversed_codes.get(symbol) {
+            Some(c) => {
+                message.push(*c);
+                index += cursor + 1;
+                cursor = 0;
+            }
+            None => {
+                cursor += 1;
+            }
+        }
+    }
+    Ok(message)
 }
 
 #[cfg(test)]

@@ -9,6 +9,7 @@ use std::error::Error;
 pub enum SymbolMappingError {
     SymbolNotFoundInCodes(char),
     ExtraSymbolInCodes(char),
+    UnknownSymbolInString,
     // Add other types of errors as needed
 }
 
@@ -21,6 +22,9 @@ impl fmt::Display for SymbolMappingError {
             },
             SymbolMappingError::ExtraSymbolInCodes(symbol) => {
                 write!(f, "Extra symbol {} found in codes but not in frequencies.", symbol)
+            },
+            SymbolMappingError::UnknownSymbolInString => {
+                write!(f, "Unknown symbol found in the input string.")
             },
         }
     }
